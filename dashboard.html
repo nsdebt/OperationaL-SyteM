@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NS Debt Management</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Animate.css for animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <!-- jQuery UI CSS for autocomplete -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  
+  <header class="branding text-center mb-4">
+    <source src="static/videos/animated logoww.mp4" type="video/mp4">
+    <img
+      src="static/images/animated logoww.mp4"
+      alt="NS Debt Management Logo"
+      class="company-logo"
+    />
+  </header>  
+  <style>
+    /* Branding wrapper */
+.branding {
+  padding: 1rem 0;
+  background: #cf81cf00;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Logo sizing */
+.company-logo {
+  max-height: 60px;
+  width: auto;
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.company-logo:hover {
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+    /* Base styles */
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .navbar-custom {
+      background: linear-gradient(45deg, #0121ee, #0056b3);
+      padding: 20px 20px;
+    }
+    .navbar-custom a, .navbar-custom button {
+      color: #ffffff;
+      font-weight: bold;
+    }
+    .navbar-custom a:hover, .navbar-custom button:hover {
+      color: #f8f9fa;
+    }
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      opacity: 0;
+      animation: fadeIn 1s forwards;
+    }
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #333;
+      border-bottom: 3px solid #007bff;
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+    .card {
+      border: none;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #fafafa;
+    }
+    .card:hover {
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    .btn-custom {
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s, transform 0.3s;
+      border-radius: 5px;
+      margin: 5px;
+    }
+    .btn-custom:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    .search-container {
+      max-width: 600px;
+      margin: 20px auto;
+      display: flex;
+    }
+    .search-container input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px 0 0 5px;
+    }
+    .search-container button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+    }
+    .search-container button:hover {
+      background-color: #0056b3;
+    }
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+    }
+    /* Debt account block styling */
+    .debt-account {
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      position: relative;
+      background: #fff;
+    }
+    .remove-debt {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      text-align: center;
+      line-height: 22px;
+      cursor: pointer;
+    }
+    /* Loader styling */
+    #loader {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      display: none;
+    }
+    /* Print styles */
+    @media print {
+      body { background: #fff; color: #000; }
+      .btn-custom, .search-container, .navbar, .footer, #clientTableContainer { display: none !important; }
+      .dashboard-container { box-shadow: none; margin: 0; padding: 20px; }
+      .section-title { border-bottom: 1px solid #000; }
+      /* Ensure extra sections (invoice, mandate, agreement) print as separate pages if needed */
+      .print-page { page-break-after: always; }
+    }
+    /* Dark mode styling */
+    .dark-mode {
+      background-color: #343a40;
+      color: #f8f9fa;
+    }
+    .dark-mode .dashboard-container {
+      background-color: #495057;
+      color: #f8f9fa;
+    }
+    .dark-mode .navbar-custom {
+      background: linear-gradient(45deg, #000, #343a40);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand" href="#">NS Debt Management</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item"><a class="nav-link" href="/services">Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="/debt_repayment_plan">Payment Plan Tool</a></li>
+        <li class="nav-item"><a class="nav-link" href="/debt_repayment_calculator">Debt Calculator</a></li>
+        <li class="nav-item"><a class="nav-link" href="/accounts">Accounts</a></li>
+        <li class="nav-item"><a class="nav-link" href="/legal_documents">Legal Documents </a></li>
+        <li class="nav-item"><a class="nav-link" href="/credit_repair">Credit Repair</a></li>
+        <li class="nav-item"><a class="nav-link" href="/workhub">Work Station</a></li>
+        <li class="nav-item"><a class="nav-link" href="/billing">Client Bill</a></li>
+        <li class="nav-item"><a class="nav-link" href="/advanced_escalations">Escalations</a></li>
+        <li class="nav-item">
+          <button class="btn btn-sm btn-custom" id="toggleTheme">Dark Mode</button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  
+  <!-- Search Bar -->
+  <div class="container">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Enter Client ID or Personal ID" title="Search for a client">
+      <button onclick="loadClientData()">Search</button>
+    </div>
+  </div>
+  
+  <!-- Loader -->
+  <div id="loader">
+    <div class="spinner-border text-primary" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+  
+  <!-- Dashboard Container (Printable Area) -->
+  <div class="container dashboard-container" id="printableArea">
+    <h1 class="text-center">NS Debt Management Dashboard</h1>
+    
+    <!-- Client Account Number -->
+    <div class="form-group">
+      <label for="client-id"><strong>Client Account Number:</strong></label>
+      <input type="text" id="client-id" class="input-field" placeholder="Auto-generated" disabled>
+    </div>
+    
+    <!-- Personal Information -->
+    <div class="section-title">Personal Information</div>
+    <div class="card">
+      <div class="card-body">
+        <!-- Name Fields -->
+        <div class="form-group">
+          <label for="client-firstname"><strong>First Name:</strong></label>
+          <input type="text" id="client-firstname" class="input-field" placeholder="Enter first name" data-toggle="tooltip" title="First Name">
+        </div>
+        <div class="form-group">
+          <label for="client-middlename"><strong>Middle Name:</strong></label>
+          <input type="text" id="client-middlename" class="input-field" placeholder="Enter middle name" data-toggle="tooltip" title="Middle Name">
+        </div>
+        <div class="form-group">
+          <label for="client-lastname"><strong>Last Name:</strong></label>
+          <input type="text" id="client-lastname" class="input-field" placeholder="Enter last name" data-toggle="tooltip" title="Last Name">
+        </div>
+        <div class="form-group">
+          <label for="client-personalid"><strong>Personal ID Number:</strong></label>
+          <input type="text" id="client-personalid" class="input-field" placeholder="Enter personal ID number" data-toggle="tooltip" title="Unique personal identifier">
+        </div>
+        <div class="form-group">
+          <label for="client-dob"><strong>Date of Birth:</strong></label>
+          <input type="date" id="client-dob" class="input-field" data-toggle="tooltip" title="MM/DD/YYYY">
+        </div>
+        <div class="form-group">
+          <label for="client-gender"><strong>Gender:</strong></label>
+          <select id="client-gender" class="input-field">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="client-marital"><strong>Marital Status:</strong></label>
+          <select id="client-marital" class="input-field">
+            <option value="">Select Marital Status</option>
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Divorced">Divorced</option>
+            <option value="Widowed">Widowed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="client-nationality"><strong>Nationality:</strong></label>
+          <input type="text" id="client-nationality" class="input-field" placeholder="Enter nationality" data-toggle="tooltip" title="Nationality">
+        </div>
+        <div class="form-group">
+          <label for="client-occupation"><strong>Occupation:</strong></label>
+          <input type="text" id="client-occupation" class="input-field" placeholder="Enter occupation" data-toggle="tooltip" title="Occupation">
+        </div>
+        <div class="form-group">
+          <label for="client-contactmethod"><strong>Preferred Contact Method:</strong></label>
+          <select id="client-contactmethod" class="input-field">
+            <option value="">Select Contact Method</option>
+            <option value="Email">Email</option>
+            <option value="Phone">Phone</option>
+            <option value="SMS">SMS</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="client-address"><strong>Address:</strong></label>
+          <input type="text" id="client-address" class="input-field" placeholder="Enter address" data-toggle="tooltip" title="Residential address">
+        </div>
+        <div class="form-group">
+          <label for="client-phone"><strong>Phone Number:</strong></label>
+          <input type="text" id="client-phone" class="input-field" placeholder="Enter phone number" data-toggle="tooltip" title="Contact number">
+        </div>
+        <div class="form-group">
+          <label for="client-email"><strong>Email:</strong></label>
+          <input type="email" id="client-email" class="input-field" placeholder="Enter email" data-toggle="tooltip" title="Email address">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Application Details -->
+    <div class="section-title">Application Details</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group">
+          <label for="application-date"><strong>Application Date:</strong></label>
+          <input type="date" id="application-date" class="input-field" data-toggle="tooltip" title="Date of application">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Financial Information -->
+    <div class="section-title">Financial Information</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group">
+          <label for="client-income"><strong>Monthly Income:</strong></label>
+          <input type="text" id="client-income" class="input-field" placeholder="Enter monthly income" data-toggle="tooltip" title="Monthly income">
+        </div>
+        <div class="form-group">
+          <label for="client-otherincome"><strong>Other Income:</strong></label>
+          <input type="text" id="client-otherincome" class="input-field" placeholder="Enter other income sources" data-toggle="tooltip" title="Other income sources">
+        </div>
+        <div class="form-group">
+          <label for="client-expenses"><strong>Monthly Expenses:</strong></label>
+          <input type="text" id="client-expenses" class="input-field" placeholder="Enter monthly expenses" data-toggle="tooltip" title="Monthly expenses">
+        </div>
+        <div class="form-group">
+          <label for="client-savings"><strong>Total Savings:</strong></label>
+          <input type="text" id="client-savings" class="input-field" placeholder="Enter total savings" data-toggle="tooltip" title="Total savings">
+        </div>
+        <div class="form-group">
+          <label for="client-employment"><strong>Employment Status:</strong></label>
+          <select id="client-employment" class="input-field">
+            <option value="">Select Employment Status</option>
+            <option value="Employed">Employed</option>
+            <option value="Self-employed">Self-employed</option>
+            <option value="Unemployed">Unemployed</option>
+            <option value="Retired">Retired</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="client-creditscore"><strong>Credit Score:</strong></label>
+          <input type="text" id="client-creditscore" class="input-field" placeholder="Enter credit score" data-toggle="tooltip" title="Credit score">
+        </div>
+        <div class="form-group">
+          <label for="client-investments"><strong>Investment Portfolio Value:</strong></label>
+          <input type="text" id="client-investments" class="input-field" placeholder="Enter value of investments" data-toggle="tooltip" title="Investment portfolio value">
+        </div>
+        <div class="form-group">
+          <label for="client-propertyvalue"><strong>Property Value:</strong></label>
+          <input type="text" id="client-propertyvalue" class="input-field" placeholder="Enter property value" data-toggle="tooltip" title="Property value">
+        </div>
+        <div class="form-group">
+          <label for="client-rentmortgage"><strong>Monthly Rent/Mortgage:</strong></label>
+          <input type="text" id="client-rentmortgage" class="input-field" placeholder="Enter monthly rent/mortgage" data-toggle="tooltip" title="Monthly rent or mortgage">
+        </div>
+        <div class="form-group">
+          <label for="client-liabilities"><strong>Other Liabilities:</strong></label>
+          <input type="text" id="client-liabilities" class="input-field" placeholder="Enter other liabilities" data-toggle="tooltip" title="Other liabilities">
+        </div>
+        <!-- Banking Information (Branch Code replaces Bank Balance) -->
+        <div class="section-title">Banking Information</div>
+        <div class="form-group">
+          <label for="bank-name"><strong>Bank Name:</strong></label>
+          <input type="text" id="bank-name" class="input-field" placeholder="Enter bank name" data-toggle="tooltip" title="Bank name">
+        </div>
+        <div class="form-group">
+          <label for="bank-accountnumber"><strong>Account Number:</strong></label>
+          <input type="text" id="bank-accountnumber" class="input-field" placeholder="Enter account number" data-toggle="tooltip" title="Bank account number">
+        </div>
+        <div class="form-group">
+          <label for="bank-accounttype"><strong>Account Type:</strong></label>
+          <select id="bank-accounttype" class="input-field">
+            <option value="">Select Account Type</option>
+            <option value="Checking">Checking</option>
+            <option value="Savings">Savings</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bank-branchcode"><strong>Branch Code:</strong></label>
+          <input type="text" id="bank-branchcode" class="input-field" placeholder="Enter branch code" data-toggle="tooltip" title="Branch code">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Debt Information -->
+    <div class="section-title">Debt Information</div>
+    <div class="card">
+      <div class="card-body">
+        <div id="debtAccountsContainer"></div>
+        <button class="btn-custom" type="button" onclick="addDebtAccountBlock()">Add Debt Account</button>
+      </div>
+    </div>
+    
+    <!-- Service Information -->
+    <div class="section-title">Service Information</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group">
+          <label for="service-type"><strong>Service Type:</strong></label>
+          <select id="service-type" class="input-field">
+            <option value="">Select Service Type</option>
+            <option value="Debt Management">Debt Management</option>
+            <option value="Credit Repair">Credit Repair</option>
+            <option value="Debt Consolidation">Debt Consolidation</option>
+            <option value="Financial Planning">Financial Planning</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="service-date"><strong>Service Date:</strong></label>
+          <input type="date" id="service-date" class="input-field" data-toggle="tooltip" title="Date of service">
+        </div>
+        <div class="form-group">
+          <label for="service-rep"><strong>Service Representative:</strong></label>
+          <input type="text" id="service-rep" class="input-field" placeholder="Enter representative name" data-toggle="tooltip" title="Service representative">
+        </div>
+        <div class="form-group">
+          <label for="service-priority"><strong>Service Priority:</strong></label>
+          <select id="service-priority" class="input-field">
+            <option value="">Select Priority</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="service-notes"><strong>Service Notes:</strong></label>
+          <textarea id="service-notes" class="input-field" placeholder="Enter service notes" data-toggle="tooltip" title="Additional notes" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="service-followup"><strong>Follow-up Date:</strong></label>
+          <input type="date" id="service-followup" class="input-field" data-toggle="tooltip" title="Follow-up date">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Reporting & Tracking -->
+    <div class="section-title">Reporting & Tracking</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group">
+          <label for="tracking-number"><strong>Tracking Number:</strong></label>
+          <input type="text" id="tracking-number" class="input-field" placeholder="Auto-generated if empty" data-toggle="tooltip" title="Tracking Number">
+        </div>
+        <div class="form-group">
+          <label for="tracking-url"><strong>Tracking URL:</strong></label>
+          <input type="text" id="tracking-url" class="input-field" placeholder="Auto-generated if empty" data-toggle="tooltip" title="Tracking URL">
+        </div>
+        <div class="form-group">
+          <label for="report-status"><strong>Status:</strong></label>
+          <select id="report-status" class="input-field">
+            <option value="">Select Status</option>
+            <option value="New">New</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="On Hold">On Hold</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="report-lastupdate"><strong>Last Update Date:</strong></label>
+          <input type="date" id="report-lastupdate" class="input-field" data-toggle="tooltip" title="Last update date">
+        </div>
+        <div class="form-group">
+          <label for="report-nextupdate"><strong>Next Scheduled Update:</strong></label>
+          <input type="date" id="report-nextupdate" class="input-field" data-toggle="tooltip" title="Next scheduled update">
+        </div>
+        <!-- Update Notes Sub-section -->
+        <div class="section-title" style="font-size:1.4rem;">Update Notes</div>
+        <div class="form-group">
+          <label for="note-date"><strong>Note Date:</strong></label>
+          <input type="date" id="note-date" class="input-field" data-toggle="tooltip" title="Note Date">
+        </div>
+        <div class="form-group">
+          <label for="note-author"><strong>Note Author:</strong></label>
+          <input type="text" id="note-author" class="input-field" placeholder="Enter note author" data-toggle="tooltip" title="Note Author">
+        </div>
+        <div class="form-group">
+          <label for="note-text"><strong>Note Text:</strong></label>
+          <textarea id="note-text" class="input-field" placeholder="Enter note text" data-toggle="tooltip" title="Note text" rows="2"></textarea>
+        </div>
+        <button class="btn-custom" type="button" onclick="addNote()">Add Note</button>
+        <table class="table table-bordered" id="notesTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Author</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Document Upload -->
+    <div class="section-title">Document Upload</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group">
+          <label for="doc-id"><strong>Upload ID Document:</strong></label>
+          <input type="file" id="doc-id" class="input-field" accept=".pdf,image/*">
+        </div>
+        <div class="form-group">
+          <label for="doc-payslips"><strong>Upload Payslips:</strong></label>
+          <input type="file" id="doc-payslips" class="input-field" accept=".pdf,image/*" multiple>
+        </div>
+        <div class="form-group">
+          <label for="doc-bankstatements"><strong>Upload Bank Statements:</strong></label>
+          <input type="file" id="doc-bankstatements" class="input-field" accept=".pdf,image/*" multiple>
+        </div>
+        <div class="form-group">
+          <label for="doc-other"><strong>Upload Other Documents:</strong></label>
+          <input type="file" id="doc-other" class="input-field" accept=".pdf,image/*" multiple>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Fees & Charges Section -->
+    <div class="section-title">Fees & Charges</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group">
+          <label for="service-fee"><strong>Service Fee:</strong></label>
+          <input type="text" id="service-fee" class="input-field" placeholder="Enter service fee" data-toggle="tooltip" title="Service fee">
+        </div>
+        <div class="form-group">
+          <label for="processing-fee"><strong>Processing Fee:</strong></label>
+          <input type="text" id="processing-fee" class="input-field" placeholder="Enter processing fee" data-toggle="tooltip" title="Processing fee">
+        </div>
+        <div class="form-group">
+          <label for="other-charges"><strong>Other Charges:</strong></label>
+          <input type="text" id="other-charges" class="input-field" placeholder="Enter other charges" data-toggle="tooltip" title="Other charges">
+        </div>
+        <div class="form-group">
+          <label for="total-fee"><strong>Total Fee:</strong></label>
+          <input type="text" id="total-fee" class="input-field" placeholder="Auto-calculated" data-toggle="tooltip" title="Total fee" readonly>
+        </div>
+        <button class="btn-custom" type="button" onclick="calculateTotalFee()">Calculate Total Fee</button>
+        <div class="form-group">
+          <label for="invoice-number"><strong>Invoice Number:</strong></label>
+          <input type="text" id="invoice-number" class="input-field" placeholder="Auto-generated" data-toggle="tooltip" title="Invoice Number" readonly>
+        </div>
+        <div class="form-group">
+          <label for="quotation-number"><strong>Quotation Number:</strong></label>
+          <input type="text" id="quotation-number" class="input-field" placeholder="Auto-generated" data-toggle="tooltip" title="Quotation Number" readonly>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Debit-Order Mandate Section -->
+    <div class="section-title">Debit-Order Mandate</div>
+    <div class="card">
+      <div class="card-body">
+        <textarea id="debit-mandate" class="input-field" rows="4" placeholder="Auto-generated mandate will appear here" readonly></textarea>
+        <button class="btn-custom" type="button" onclick="generateDebitMandate()">Generate Mandate</button>
+      </div>
+    </div>
+    
+    <!-- Service Agreement Section -->
+    <div class="section-title">Service Agreement</div>
+    <div class="card">
+      <div class="card-body">
+        <textarea id="service-agreement" class="input-field" rows="6" placeholder="Auto-generated service agreement will appear here" readonly></textarea>
+        <button class="btn-custom" type="button" onclick="generateServiceAgreement()">Generate Agreement</button>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="text-center mb-3">
+      <button class="btn-custom" onclick="saveClientData()">Save </button>
+      <button class="btn-custom" onclick="updateClientData()">Update </button>
+      <button class="btn-custom" onclick="confirmDelete()">Delete </button>
+      <button class="btn-custom" onclick="printPDF()">Print</button>
+      <button class="btn-custom" onclick="calculateDTI()">Calculate DTI</button>
+      <button class="btn-custom" onclick="clearAllData()">Clear </button>
+    </div>
+    
+    <!-- Import/Export Section -->
+    <div class="text-center mb-3">
+      <button class="btn-custom" onclick="exportCSV()">Export CSV</button>
+      <input type="file" id="importFile" style="display:none;" onchange="importCSV(event)">
+      <button class="btn-custom" onclick="document.getElementById('importFile').click()">Import CSV</button>
+    </div>
+    
+    <!-- Chart Section -->
+    <div class="section-title">Financial Overview</div>
+    <div class="card">
+      <div class="card-body">
+        <canvas id="debtChart"></canvas>
+      </div>
+    </div>
+    
+    <!-- Debt-to-Income Ratio Display -->
+    <div class="section-title">Debt-to-Income Ratio</div>
+    <div class="card">
+      <div class="card-body">
+        <p id="dtiDisplay">DTI: N/A</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Client Records Table -->
+  <div class="container" id="clientTableContainer">
+    <h2 class="text-center">Client Records</h2>
+    <table class="table table-bordered" id="clientTable">
+      <thead>
+        <tr>
+          <th>Client ID</th>
+          <th>Personal ID</th>
+          <th>Name</th>
+          <th>Account Created</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  
+  <!-- Footer -->
+  <div class="footer">
+    <p>NS Debt Management | © 2025</p>
+  </div>
+  
+  <!-- Delete Confirmation Modal -->
+  <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Deletion</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete this client data?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="deleteClientData()">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- jQuery, jQuery UI, Popper.js, Bootstrap JS, and Chart.js -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    // Global variable for update notes
+    let reportNotes = [];
+    
+    // Initialize tooltips
+    $(function () { $('[data-toggle="tooltip"]').tooltip(); });
+    
+    // Dark mode toggle
+    document.getElementById('toggleTheme').addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+      this.textContent = document.body.classList.contains('dark-mode') ? "Light Mode" : "Dark Mode";
+    });
+    
+    /* ------------------- Debt Account Block Functions ------------------- */
+    function addDebtAccountBlock(debtData = {}) {
+      const container = document.getElementById('debtAccountsContainer');
+      const div = document.createElement('div');
+      div.className = 'debt-account';
+      div.innerHTML = `
+        <button class="remove-debt" onclick="removeDebtAccountBlock(this)">×</button>
+        <div class="form-group">
+          <label><strong>Creditor Name:</strong></label>
+          <input type="text" class="input-field creditor-name" placeholder="Enter creditor name" value="${debtData.creditorName || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Account Number:</strong></label>
+          <input type="text" class="input-field account-number" placeholder="Enter account number" value="${debtData.accountNumber || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Account Type:</strong></label>
+          <select class="input-field account-type">
+            <option value="">Select Account Type</option>
+            <option value="Credit Card" ${debtData.accountType==='Credit Card' ? 'selected' : ''}>Credit Card</option>
+            <option value="Mortgage" ${debtData.accountType==='Mortgage' ? 'selected' : ''}>Mortgage</option>
+            <option value="Personal Loan" ${debtData.accountType==='Personal Loan' ? 'selected' : ''}>Personal Loan</option>
+            <option value="Student Loan" ${debtData.accountType==='Student Loan' ? 'selected' : ''}>Student Loan</option>
+            <option value="Auto Loan" ${debtData.accountType==='Auto Loan' ? 'selected' : ''}>Auto Loan</option>
+            <option value="Other" ${debtData.accountType==='Other' ? 'selected' : ''}>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><strong>Original Amount:</strong></label>
+          <input type="text" class="input-field original-amount" placeholder="Enter original debt amount" value="${debtData.originalAmount || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Outstanding Balance:</strong></label>
+          <input type="text" class="input-field outstanding-balance" placeholder="Enter outstanding balance" value="${debtData.outstandingBalance || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Interest Rate (%):</strong></label>
+          <input type="text" class="input-field interest-rate" placeholder="Enter interest rate" value="${debtData.interestRate || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Minimum Payment:</strong></label>
+          <input type="text" class="input-field minimum-payment" placeholder="Enter minimum payment" value="${debtData.minimumPayment || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Payment Due Date:</strong></label>
+          <input type="date" class="input-field due-date" value="${debtData.dueDate || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Payment Plan:</strong></label>
+          <input type="text" class="input-field payment-plan" placeholder="Enter payment plan details" value="${debtData.paymentPlan || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Date Opened:</strong></label>
+          <input type="date" class="input-field date-opened" value="${debtData.dateOpened || ''}">
+        </div>
+        <div class="form-group">
+          <label><strong>Debt Status:</strong></label>
+          <select class="input-field debt-status">
+            <option value="">Select Debt Status</option>
+            <option value="Current" ${debtData.debtStatus==='Current' ? 'selected' : ''}>Current</option>
+            <option value="Delinquent" ${debtData.debtStatus==='Delinquent' ? 'selected' : ''}>Delinquent</option>
+            <option value="Charged Off" ${debtData.debtStatus==='Charged Off' ? 'selected' : ''}>Charged Off</option>
+            <option value="Closed" ${debtData.debtStatus==='Closed' ? 'selected' : ''}>Closed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><strong>Creditor Contact:</strong></label>
+          <input type="text" class="input-field creditor-contact" placeholder="Enter creditor contact info" value="${debtData.creditorContact || ''}">
+        </div>
+      `;
+      container.appendChild(div);
+    }
+    
+    function removeDebtAccountBlock(element) { element.parentElement.remove(); }
+    
+    function getDebtAccountsData() {
+      const accounts = [];
+      document.querySelectorAll('.debt-account').forEach(function(block) {
+        accounts.push({
+          creditorName: block.querySelector('.creditor-name').value.trim(),
+          accountNumber: block.querySelector('.account-number').value.trim(),
+          accountType: block.querySelector('.account-type').value,
+          originalAmount: block.querySelector('.original-amount').value.trim(),
+          outstandingBalance: block.querySelector('.outstanding-balance').value.trim(),
+          interestRate: block.querySelector('.interest-rate').value.trim(),
+          minimumPayment: block.querySelector('.minimum-payment').value.trim(),
+          dueDate: block.querySelector('.due-date').value,
+          paymentPlan: block.querySelector('.payment-plan').value.trim(),
+          dateOpened: block.querySelector('.date-opened').value,
+          debtStatus: block.querySelector('.debt-status').value,
+          creditorContact: block.querySelector('.creditor-contact').value.trim()
+        });
+      });
+      return accounts;
+    }
+    
+    /* ------------------- Update Notes Functions ------------------- */
+    function addNote() {
+      const noteDate = document.getElementById('note-date').value;
+      const noteAuthor = document.getElementById('note-author').value.trim();
+      const noteText = document.getElementById('note-text').value.trim();
+      if (!noteDate || !noteAuthor || !noteText) {
+        alert("Please fill in all note fields.");
+        return;
+      }
+      const note = { date: noteDate, author: noteAuthor, text: noteText };
+      reportNotes.push(note);
+      updateNotesTable();
+      document.getElementById('note-date').value = "";
+      document.getElementById('note-author').value = "";
+      document.getElementById('note-text').value = "";
+    }
+    
+    function updateNotesTable() {
+      const tbody = document.querySelector("#notesTable tbody");
+      tbody.innerHTML = "";
+      reportNotes.forEach(function(note) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${note.date}</td><td>${note.author}</td><td>${note.text}</td>`;
+        tbody.appendChild(row);
+      });
+    }
+    
+    function generateQuotationDocument(data) {
+      const clientFullName = data.personal.firstName + " " + data.personal.lastName;
+      const totalFee = parseFloat(document.getElementById('total-fee').value) || 0;
+      let content = `QUOTATION FOR SERVICES
+      
+Dear ${clientFullName},
+
+Thank you for choosing NS Debt Management. Based on the details provided in your application, we have prepared the following quotation for our services. Our fee structure is dynamic and is calculated using a base fee, a deferred fee based on your outstanding debts, and an aftercare fee. This quotation is prepared in accordance with current South African financial regulations and is subject to a detailed review of your financial profile.
+
+Fee Breakdown:
+1. Base Fee: R200.00
+2. Deferred Fee: 15% of your total outstanding debts.
+3. Aftercare Fee: R68.00
+
+If your monthly income is below R3000, an additional adjustment of R50.00 is applied. Based on the provided data, your total estimated fee is R${totalFee.toFixed(2)}.
+
+Payment Terms:
+- An official invoice will be issued upon your acceptance of this quotation.
+- Payment is expected within 14 days of invoice issuance.
+- Late payments may incur additional charges in accordance with our standard policies.
+
+Validity:
+This quotation is valid for 30 days from the date of issuance. Any changes in your financial circumstances may result in a revised quotation.
+
+NS Debt Management is committed to transparency and fairness in our pricing. Our team of experienced financial advisors is dedicated to providing you with personalized solutions that address your unique debt challenges. We look forward to partnering with you and guiding you towards a more stable financial future.
+
+Please review this quotation carefully and contact us if you require any clarification or further details.
+
+Sincerely,
+NS Debt Management Team
+
+(End of Quotation Document)`;
+      return content;
+    }
+    
+    /* ------------------- Fees & Charges Functions ------------------- */
+    function calculateTotalFee() {
+      let serviceFee = parseFloat(document.getElementById('service-fee').value) || 0;
+      let processingFee = parseFloat(document.getElementById('processing-fee').value) || 0;
+      let otherCharges = parseFloat(document.getElementById('other-charges').value) || 0;
+      let total = serviceFee + processingFee + otherCharges;
+      document.getElementById('total-fee').value = total.toFixed(2);
+      // Auto-generate invoice and quotation numbers if empty
+      if (!document.getElementById('invoice-number').value) {
+        document.getElementById('invoice-number').value = "INV" + Math.floor(Math.random()*1000000);
+      }
+      if (!document.getElementById('quotation-number').value) {
+        document.getElementById('quotation-number').value = "QUO" + Math.floor(Math.random()*1000000);
+      }
+    }
+    
+    /* ------------------- Debit-Order Mandate ------------------- */
+    function generateDebitMandate() {
+      const clientName = document.getElementById('client-firstname').value + " " + document.getElementById('client-lastname').value;
+      const accountNumber = document.getElementById('bank-accountnumber').value;
+      const branchCode = document.getElementById('bank-branchcode').value;
+      const totalFee = document.getElementById('total-fee').value;
+      const mandateText = `I, ${clientName}, hereby authorize NS Debt Management to debit my account (${accountNumber}) at branch code ${branchCode} for the total service fee of $${totalFee} on a monthly basis as agreed. This mandate is valid until revoked in writing by me.`;
+      document.getElementById('debit-mandate').value = mandateText;
+    }
+    
+    /* ------------------- Service Agreement ------------------- */
+    function generateServiceAgreement() {
+      const clientName = document.getElementById('client-firstname').value + " " + document.getElementById('client-lastname').value;
+      const invoiceNumber = document.getElementById('invoice-number').value;
+      const serviceType = document.getElementById('service-type').value;
+      const totalFee = document.getElementById('total-fee').value;
+      const agreementText = `SERVICE AGREEMENT
+      
+This Service Agreement ("Agreement") is made and entered into on ${new Date().toISOString().split('T')[0]} by and between NS Debt Management ("Service Provider") and ${clientFullName} ("Client").
+
+WHEREAS, the Client has engaged the Service Provider for professional financial advisory services, including but not limited to debt management, credit repair, debt consolidation, and financial planning;
+
+NOW, THEREFORE, the parties hereby agree as follows:
+
+1. Scope of Services
+The Service Provider shall provide the Client with comprehensive financial advisory services. These services include a thorough review of the Client's current financial status, analysis of outstanding debts, negotiation with creditors, and the formulation of a customized debt management plan. The Service Provider will use all reasonable efforts to ensure that the plan is effective and in the best interest of the Client.
+
+2. Fees and Payment
+The total fee for the services rendered under this Agreement is R${parseFloat(totalFee).toFixed(2)}, as detailed in Invoice Number ${invoiceNumber}. This fee consists of a base fee, a deferred fee calculated at 15% of any outstanding debts, and an aftercare fee. Payment is due within 14 days of invoice issuance. Should the Client fail to pay within the stipulated time, interest charges and late fees may be applied in accordance with South African financial regulations.
+
+3. Term and Termination
+This Agreement shall commence on the date of execution and continue until the services are completed or until terminated by either party. Termination by the Client shall require written notice, and the Client shall be responsible for payment of services rendered up to the termination date. Termination by the Service Provider may occur in the event of non-payment or breach of this Agreement by the Client.
+
+4. Confidentiality
+Both parties agree to maintain the confidentiality of all proprietary and personal information exchanged during the term of this Agreement. The Service Provider will not disclose any Client information to third parties without explicit consent, except as required by law. All data will be managed in compliance with the Protection of Personal Information Act (POPIA).
+
+5. Liability and Indemnification
+The Service Provider shall not be liable for any indirect or consequential damages arising from the performance of the services. The Client agrees to indemnify and hold harmless the Service Provider against any claims arising out of or related to the use of the services provided under this Agreement.
+
+6. Dispute Resolution
+Any disputes arising from this Agreement shall first be attempted to be resolved amicably between the parties. If a resolution cannot be reached, the dispute shall be submitted to arbitration under the rules of the Arbitration Foundation of Southern Africa (AFSA). The arbitrator's decision shall be final and binding.
+
+7. Governing Law
+This Agreement shall be governed by and construed in accordance with the laws of South Africa. All legal proceedings shall be brought before the appropriate South African courts.
+
+8. Entire Agreement
+This document constitutes the entire agreement between the parties and supersedes all prior understandings, agreements, or representations. Any amendments must be made in writing and signed by both parties.
+
+9. Notices
+All notices or communications required under this Agreement shall be in writing and deemed delivered when sent via registered mail or confirmed email.
+
+10. Acceptance
+By signing below, the Client acknowledges that they have read and understood this Agreement and agree to be bound by its terms and conditions.
+
+Client Signature: _______________________________   Date: ___________________
+Service Provider Signature: _______________________   Date: ___________________
+
+This Service Agreement is intended to be a legally binding document that outlines the responsibilities and obligations of both the Service Provider and the Client. It is designed to ensure clarity in the services provided, the fee structure, and the mutual rights of both parties. In the event of any changes in applicable laws or the Client's financial circumstances, both parties agree to negotiate any necessary amendments in good faith.
+
+(End of Service Agreement Document)`;
+      document.getElementById('service-agreement').value = agreementText;
+    }
+    
+    /* ------------------- Utility Functions ------------------- */
+    function generateClientId() {
+      return 'C' + Math.floor(Math.random() * 1000000);
+    }
+    
+    function generateTrackingNumber() {
+      return 'T' + Math.floor(Math.random() * 1000000);
+    }
+    
+    function generateTrackingURL(trackingNumber) {
+      return "https://track.nsdebt.co.za/" + trackingNumber;
+    }
+    
+    function getClientDataFromForm() {
+      // Auto-generate client id if empty
+      let clientId = document.getElementById('client-id').value;
+      if (!clientId) {
+        clientId = generateClientId();
+        document.getElementById('client-id').value = clientId;
+      }
+      // Auto-generate tracking fields if empty
+      let trackingNumber = document.getElementById('tracking-number').value;
+      if (!trackingNumber) {
+        trackingNumber = generateTrackingNumber();
+        document.getElementById('tracking-number').value = trackingNumber;
+      }
+      let trackingURL = document.getElementById('tracking-url').value;
+      if (!trackingURL) {
+        trackingURL = generateTrackingURL(trackingNumber);
+        document.getElementById('tracking-url').value = trackingURL;
+      }
+      
+      return {
+        clientId: clientId,
+        personal: {
+          firstName: document.getElementById('client-firstname').value.trim(),
+          middleName: document.getElementById('client-middlename').value.trim(),
+          lastName: document.getElementById('client-lastname').value.trim(),
+          personalId: document.getElementById('client-personalid').value.trim(),
+          dob: document.getElementById('client-dob').value,
+          gender: document.getElementById('client-gender').value,
+          marital: document.getElementById('client-marital').value,
+          nationality: document.getElementById('client-nationality').value.trim(),
+          occupation: document.getElementById('client-occupation').value.trim(),
+          contactMethod: document.getElementById('client-contactmethod').value,
+          address: document.getElementById('client-address').value.trim(),
+          phone: document.getElementById('client-phone').value.trim(),
+          email: document.getElementById('client-email').value.trim()
+        },
+        application: {
+          applicationDate: document.getElementById('application-date').value
+        },
+        financial: {
+          income: document.getElementById('client-income').value.trim(),
+          otherIncome: document.getElementById('client-otherincome').value.trim(),
+          expenses: document.getElementById('client-expenses').value.trim(),
+          savings: document.getElementById('client-savings').value.trim(),
+          employment: document.getElementById('client-employment').value,
+          creditScore: document.getElementById('client-creditscore').value.trim(),
+          investments: document.getElementById('client-investments').value.trim(),
+          propertyValue: document.getElementById('client-propertyvalue').value.trim(),
+          rentMortgage: document.getElementById('client-rentmortgage').value.trim(),
+          liabilities: document.getElementById('client-liabilities').value.trim(),
+          banking: {
+            bankName: document.getElementById('bank-name').value.trim(),
+            accountNumber: document.getElementById('bank-accountnumber').value.trim(),
+            accountType: document.getElementById('bank-accounttype').value,
+            branchCode: document.getElementById('bank-branchcode').value.trim()
+          }
+        },
+        debts: getDebtAccountsData(),
+        service: {
+          serviceType: document.getElementById('service-type').value,
+          serviceDate: document.getElementById('service-date').value,
+          serviceRep: document.getElementById('service-rep').value.trim(),
+          servicePriority: document.getElementById('service-priority').value,
+          serviceNotes: document.getElementById('service-notes').value.trim(),
+          followUp: document.getElementById('service-followup').value
+        },
+        reporting: {
+          status: document.getElementById('report-status').value,
+          lastUpdate: document.getElementById('report-lastupdate').value,
+          nextUpdate: document.getElementById('report-nextupdate').value,
+          trackingNumber: document.getElementById('tracking-number').value,
+          trackingURL: document.getElementById('tracking-url').value,
+          reportingNotes: document.getElementById('report-notes') ? document.getElementById('report-notes').value.trim() : "",
+          notes: reportNotes
+        },
+        fees: {
+          serviceFee: document.getElementById('service-fee').value.trim(),
+          processingFee: document.getElementById('processing-fee').value.trim(),
+          otherCharges: document.getElementById('other-charges').value.trim(),
+          totalFee: document.getElementById('total-fee').value.trim(),
+          invoiceNumber: document.getElementById('invoice-number').value,
+          quotationNumber: document.getElementById('quotation-number').value
+        },
+        documents: {
+          idDocument: document.getElementById('doc-id').value,
+          payslips: document.getElementById('doc-payslips').value,
+          bankStatements: document.getElementById('doc-bankstatements').value,
+          otherDocuments: document.getElementById('doc-other').value
+        },
+        mandate: document.getElementById('debit-mandate').value,
+        agreement: document.getElementById('service-agreement').value
+      };
+    }
+    
+    function setFormData(data) {
+      document.getElementById('client-id').value = data.clientId || "";
+      // Personal Info
+      document.getElementById('client-firstname').value = data.personal.firstName || "";
+      document.getElementById('client-middlename').value = data.personal.middleName || "";
+      document.getElementById('client-lastname').value = data.personal.lastName || "";
+      document.getElementById('client-personalid').value = data.personal.personalId || "";
+      document.getElementById('client-dob').value = data.personal.dob || "";
+      document.getElementById('client-gender').value = data.personal.gender || "";
+      document.getElementById('client-marital').value = data.personal.marital || "";
+      document.getElementById('client-nationality').value = data.personal.nationality || "";
+      document.getElementById('client-occupation').value = data.personal.occupation || "";
+      document.getElementById('client-contactmethod').value = data.personal.contactMethod || "";
+      document.getElementById('client-address').value = data.personal.address || "";
+      document.getElementById('client-phone').value = data.personal.phone || "";
+      document.getElementById('client-email').value = data.personal.email || "";
+      
+      // Application
+      document.getElementById('application-date').value = data.application.applicationDate || "";
+      
+      // Financial
+      document.getElementById('client-income').value = data.financial.income || "";
+      document.getElementById('client-otherincome').value = data.financial.otherIncome || "";
+      document.getElementById('client-expenses').value = data.financial.expenses || "";
+      document.getElementById('client-savings').value = data.financial.savings || "";
+      document.getElementById('client-employment').value = data.financial.employment || "";
+      document.getElementById('client-creditscore').value = data.financial.creditScore || "";
+      document.getElementById('client-investments').value = data.financial.investments || "";
+      document.getElementById('client-propertyvalue').value = data.financial.propertyValue || "";
+      document.getElementById('client-rentmortgage').value = data.financial.rentMortgage || "";
+      document.getElementById('client-liabilities').value = data.financial.liabilities || "";
+      document.getElementById('bank-name').value = data.financial.banking.bankName || "";
+      document.getElementById('bank-accountnumber').value = data.financial.banking.accountNumber || "";
+      document.getElementById('bank-accounttype').value = data.financial.banking.accountType || "";
+      document.getElementById('bank-branchcode').value = data.financial.banking.branchCode || "";
+      
+      // Debts
+      document.getElementById('debtAccountsContainer').innerHTML = "";
+      if (data.debts && data.debts.length) {
+        data.debts.forEach(function(debt) { addDebtAccountBlock(debt); });
+      }
+      
+      // Service Info
+      document.getElementById('service-type').value = data.service.serviceType || "";
+      document.getElementById('service-date').value = data.service.serviceDate || "";
+      document.getElementById('service-rep').value = data.service.serviceRep || "";
+      document.getElementById('service-priority').value = data.service.servicePriority || "";
+      document.getElementById('service-notes').value = data.service.serviceNotes || "";
+      document.getElementById('service-followup').value = data.service.followUp || "";
+      
+      // Reporting & Tracking
+      document.getElementById('report-status').value = data.reporting.status || "";
+      document.getElementById('report-lastupdate').value = data.reporting.lastUpdate || "";
+      document.getElementById('report-nextupdate').value = data.reporting.nextUpdate || "";
+      document.getElementById('tracking-number').value = data.reporting.trackingNumber || "";
+      document.getElementById('tracking-url').value = data.reporting.trackingURL || "";
+      if(document.getElementById('report-notes')) {
+        document.getElementById('report-notes').value = data.reporting.reportingNotes || "";
+      }
+      reportNotes = data.reporting.notes || [];
+      updateNotesTable();
+      
+      // Fees & Charges
+      document.getElementById('service-fee').value = data.fees.serviceFee || "";
+      document.getElementById('processing-fee').value = data.fees.processingFee || "";
+      document.getElementById('other-charges').value = data.fees.otherCharges || "";
+      document.getElementById('total-fee').value = data.fees.totalFee || "";
+      document.getElementById('invoice-number').value = data.fees.invoiceNumber || "";
+      document.getElementById('quotation-number').value = data.fees.quotationNumber || "";
+      
+      // Debit-Order Mandate
+      document.getElementById('debit-mandate').value = data.mandate || "";
+      
+      // Service Agreement
+      document.getElementById('service-agreement').value = data.agreement || "";
+      // Documents – file inputs cannot be pre-filled.
+    }
+    
+    function validateClientData(data) {
+      if (!data.personal.firstName || !data.personal.lastName || !data.personal.personalId || !data.personal.email || !data.financial.income) {
+        alert("Please fill in the required fields: First Name, Last Name, Personal ID, Email, and Monthly Income.");
+        return false;
+      }
+      return true;
+    }
+    
+    function clearForm() {
+      document.querySelectorAll('.input-field').forEach(function(input) { input.value = ''; });
+      document.getElementById('debtAccountsContainer').innerHTML = "";
+      reportNotes = [];
+      updateNotesTable();
+      document.getElementById('client-id').value = "";
+    }
+    
+    function showLoader() { document.getElementById('loader').style.display = 'block'; }
+    function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+    
+    function updateAutocompleteSource() {
+      let keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        keys.push(localStorage.key(i));
+      }
+      $("#searchInput").autocomplete({ source: keys });
+    }
+    
+    /* ------------------- Client Records Table ------------------- */
+    function refreshClientTable() {
+      const tbody = document.querySelector("#clientTable tbody");
+      tbody.innerHTML = "";
+      for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        let clientData = JSON.parse(localStorage.getItem(key));
+        let row = document.createElement("tr");
+        row.innerHTML = `<td>${key}</td>
+                         <td>${clientData.personal.personalId}</td>
+                         <td>${clientData.personal.firstName} ${clientData.personal.lastName}</td>
+                         <td>${clientData.application.applicationDate || "N/A"}</td>
+                         <td><button class="btn-custom" onclick="loadClientDataForId('${key}')">View</button></td>`;
+        tbody.appendChild(row);
+      }
+    }
+    
+    function loadClientDataForId(clientId) {
+      showLoader();
+      let data = localStorage.getItem(clientId);
+      if (data) {
+        let clientData = JSON.parse(data);
+        setFormData(clientData);
+        document.getElementById('searchInput').value = clientId;
+        setTimeout(() => { hideLoader(); updateChart(clientData); }, 500);
+      } else {
+        hideLoader();
+        alert('Client not found!');
+      }
+    }
+    
+    /* ------------------- Save, Update, Delete, and Load ------------------- */
+    function saveClientData() {
+      showLoader();
+      let clientData = getClientDataFromForm();
+      if (!validateClientData(clientData)) { hideLoader(); return; }
+      let clientId = clientData.clientId;
+      localStorage.setItem(clientId, JSON.stringify(clientData));
+      setTimeout(() => {
+        hideLoader();
+        alert('Client Data Saved with Client ID: ' + clientId);
+        clearForm();
+        updateAutocompleteSource();
+        refreshClientTable();
+        updateChart(clientData);
+      }, 500);
+    }
+    
+    function updateClientData() {
+      showLoader();
+      let searchKey = document.getElementById('searchInput').value.trim();
+      if (!searchKey) { alert("Please enter a valid Client ID or Personal ID to update."); hideLoader(); return; }
+      let foundKey = localStorage.getItem(searchKey) ? searchKey : null;
+      if (!foundKey) {
+        for (let i = 0; i < localStorage.length; i++) {
+          let key = localStorage.key(i);
+          let data = JSON.parse(localStorage.getItem(key));
+          if (data.personal.personalId === searchKey) { foundKey = key; break; }
+        }
+      }
+      if (foundKey) {
+        let clientData = getClientDataFromForm();
+        if (!validateClientData(clientData)) { hideLoader(); return; }
+        localStorage.setItem(foundKey, JSON.stringify(clientData));
+        setTimeout(() => {
+          hideLoader();
+          alert('Client Data Updated for Client ID: ' + foundKey);
+          refreshClientTable();
+          updateChart(clientData);
+        }, 500);
+      } else { hideLoader(); alert('Client not found!'); }
+    }
+    
+    function deleteClientData() {
+      let searchKey = document.getElementById('searchInput').value.trim();
+      let foundKey = localStorage.getItem(searchKey) ? searchKey : null;
+      if (!foundKey) {
+        for (let i = 0; i < localStorage.length; i++) {
+          let key = localStorage.key(i);
+          let data = JSON.parse(localStorage.getItem(key));
+          if (data.personal.personalId === searchKey) { foundKey = key; break; }
+        }
+      }
+      if (foundKey) {
+        localStorage.removeItem(foundKey);
+        updateAutocompleteSource();
+        hideLoader();
+        alert('Client Data Deleted for Client ID: ' + foundKey);
+        clearForm();
+        $('#deleteModal').modal('hide');
+        refreshClientTable();
+      } else { hideLoader(); alert('Client not found!'); }
+    }
+    
+    function confirmDelete() { $('#deleteModal').modal('show'); }
+    
+    function loadClientData() {
+      showLoader();
+      let searchKey = document.getElementById('searchInput').value.trim();
+      let data = localStorage.getItem(searchKey);
+      let foundKey = searchKey;
+      if (!data) {
+        for (let i = 0; i < localStorage.length; i++) {
+          let key = localStorage.key(i);
+          let clientData = JSON.parse(localStorage.getItem(key));
+          if (clientData.personal.personalId === searchKey) { data = JSON.stringify(clientData); foundKey = key; break; }
+        }
+      }
+      if (data) {
+        let clientData = JSON.parse(data);
+        setFormData(clientData);
+        setTimeout(() => { hideLoader(); updateChart(clientData); }, 500);
+      } else { hideLoader(); alert('Client not found!'); }
+    }
+    
+    /* ------------------- Import/Export/Print ------------------- */
+    function exportCSV() {
+      let header = "ClientID,PersonalID,FirstName,MiddleName,LastName,DOB,Gender,Marital,Nationality,Occupation,ContactMethod,Address,Phone,Email,Income,OtherIncome,Expenses,Savings,Employment,CreditScore,Investments,PropertyValue,RentMortgage,Liabilities,BankName,AccountNumber,AccountType,BranchCode,Debts,ServiceType,ServiceDate,ServiceRep,ServicePriority,ServiceNotes,FollowUp,ApplicationDate,ReportStatus,ReportLastUpdate,ReportNextUpdate,TrackingNumber,TrackingURL,ReportNotes,ServiceFee,ProcessingFee,OtherCharges,TotalFee,InvoiceNumber,QuotationNumber,DocID,DocPayslips,DocBankStatements,DocOther,DebitMandate,ServiceAgreement\n";
+      let csv = header;
+      for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        let clientData = JSON.parse(localStorage.getItem(key));
+        let debtsStr = JSON.stringify(clientData.debts);
+        let reportNotesStr = JSON.stringify(clientData.reporting.notes || []);
+        csv += key + "," +
+               clientData.personal.personalId + "," +
+               clientData.personal.firstName + "," +
+               clientData.personal.middleName + "," +
+               clientData.personal.lastName + "," +
+               clientData.personal.dob + "," +
+               clientData.personal.gender + "," +
+               clientData.personal.marital + "," +
+               clientData.personal.nationality + "," +
+               clientData.personal.occupation + "," +
+               clientData.personal.contactMethod + "," +
+               clientData.personal.address + "," +
+               clientData.personal.phone + "," +
+               clientData.personal.email + "," +
+               clientData.financial.income + "," +
+               clientData.financial.otherIncome + "," +
+               clientData.financial.expenses + "," +
+               clientData.financial.savings + "," +
+               clientData.financial.employment + "," +
+               clientData.financial.creditScore + "," +
+               clientData.financial.investments + "," +
+               clientData.financial.propertyValue + "," +
+               clientData.financial.rentMortgage + "," +
+               clientData.financial.liabilities + "," +
+               clientData.financial.banking.bankName + "," +
+               clientData.financial.banking.accountNumber + "," +
+               clientData.financial.banking.accountType + "," +
+               clientData.financial.banking.branchCode + "," +
+               debtsStr + "," +
+               clientData.service.serviceType + "," +
+               clientData.service.serviceDate + "," +
+               clientData.service.serviceRep + "," +
+               clientData.service.servicePriority + "," +
+               clientData.service.serviceNotes + "," +
+               clientData.service.followUp + "," +
+               clientData.application.applicationDate + "," +
+               clientData.reporting.status + "," +
+               clientData.reporting.lastUpdate + "," +
+               clientData.reporting.nextUpdate + "," +
+               clientData.reporting.trackingNumber + "," +
+               clientData.reporting.trackingURL + "," +
+               reportNotesStr + "," +
+               clientData.fees.serviceFee + "," +
+               clientData.fees.processingFee + "," +
+               clientData.fees.otherCharges + "," +
+               clientData.fees.totalFee + "," +
+               clientData.fees.invoiceNumber + "," +
+               clientData.fees.quotationNumber + "," +
+               clientData.documents.idDocument + "," +
+               clientData.documents.payslips + "," +
+               clientData.documents.bankStatements + "," +
+               clientData.documents.otherDocuments + "," +
+               clientData.mandate + "," +
+               clientData.agreement + "\n";
+      }
+      let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      let link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "client_data.csv";
+      link.click();
+    }
+    
+    function importCSV(event) {
+      let file = event.target.files[0];
+      if (!file) return;
+      let reader = new FileReader();
+      reader.onload = function(e) {
+        let contents = e.target.result;
+        let lines = contents.split("\n");
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          let data = lines[i].split(",");
+          if (data.length < 60) continue;
+          let clientId = data[0];
+          let clientData = {
+            personal: {
+              personalId: data[1],
+              firstName: data[2],
+              middleName: data[3],
+              lastName: data[4],
+              dob: data[5],
+              gender: data[6],
+              marital: data[7],
+              nationality: data[8],
+              occupation: data[9],
+              contactMethod: data[10],
+              address: data[11],
+              phone: data[12],
+              email: data[13]
+            },
+            application: {
+              applicationDate: data[14]
+            },
+            financial: {
+              income: data[15],
+              otherIncome: data[16],
+              expenses: data[17],
+              savings: data[18],
+              employment: data[19],
+              creditScore: data[20],
+              investments: data[21],
+              propertyValue: data[22],
+              rentMortgage: data[23],
+              liabilities: data[24],
+              banking: {
+                bankName: data[25],
+                accountNumber: data[26],
+                accountType: data[27],
+                branchCode: data[28]
+              }
+            },
+            debts: JSON.parse(data[29] || "[]"),
+            service: {
+              serviceType: data[30],
+              serviceDate: data[31],
+              serviceRep: data[32],
+              servicePriority: data[33],
+              serviceNotes: data[34],
+              followUp: data[35]
+            },
+            reporting: {
+              status: data[36],
+              lastUpdate: data[37],
+              nextUpdate: data[38],
+              trackingNumber: data[39],
+              trackingURL: data[40],
+              reportingNotes: data[41],
+              notes: JSON.parse(data[41] || "[]")
+            },
+            fees: {
+              serviceFee: data[42],
+              processingFee: data[43],
+              otherCharges: data[44],
+              totalFee: data[45],
+              invoiceNumber: data[46],
+              quotationNumber: data[47]
+            },
+            documents: {
+              idDocument: data[48],
+              payslips: data[49],
+              bankStatements: data[50],
+              otherDocuments: data[51]
+            },
+            mandate: data[52],
+            agreement: data[53]
+          };
+          localStorage.setItem(clientId, JSON.stringify(clientData));
+        }
+        updateAutocompleteSource();
+        refreshClientTable();
+        alert("CSV Data Imported!");
+      };
+      reader.readAsText(file);
+    }
+    
+    function printPDF() { window.print(); }
+    
+    function calculateDTI() {
+      let totalMinPayments = 0;
+      document.querySelectorAll('.debt-account').forEach(function(block) {
+        totalMinPayments += parseFloat(block.querySelector('.minimum-payment').value) || 0;
+      });
+      let income = parseFloat(document.getElementById('client-income').value) || 0;
+      let dti = income > 0 ? ((totalMinPayments / income) * 100).toFixed(2) : "N/A";
+      document.getElementById('dtiDisplay').textContent = "DTI: " + dti + "%";
+    }
+    
+    function clearAllData() {
+      if (confirm("Are you sure you want to clear ALL stored data? This action cannot be undone.")) {
+        localStorage.clear();
+        updateAutocompleteSource();
+        clearForm();
+        refreshClientTable();
+        alert("All data cleared.");
+      }
+    }
+    
+    let debtChart;
+    function updateChart(clientData) {
+      let ctx = document.getElementById('debtChart').getContext('2d');
+      let totalOriginal = 0, totalOutstanding = 0;
+      if (clientData.debts && clientData.debts.length) {
+        clientData.debts.forEach(function(debt) {
+          totalOriginal += parseFloat(debt.originalAmount) || 0;
+          totalOutstanding += parseFloat(debt.outstandingBalance) || 0;
+        });
+      }
+      let totalPaid = Math.max(totalOriginal - totalOutstanding, 0);
+      let data = {
+        labels: ["Paid", "Outstanding"],
+        datasets: [{
+          label: 'Debt Overview',
+          data: [totalPaid, totalOutstanding],
+          backgroundColor: ["#28a745", "#dc3545"]
+        }]
+      };
+      if (debtChart) { debtChart.destroy(); }
+      debtChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+    
+    window.onload = function () {
+      updateAutocompleteSource();
+      refreshClientTable();
+      document.querySelector('.dashboard-container').classList.add('animate__fadeIn');
+    }
+  </script>
+</body>
+</html>

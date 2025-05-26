@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Register - NS Debt Management{% endblock %}
+
+<header class="branding text-center mb-4">
+  <img
+    src="static/images/logo_transparent.png"
+    alt="NS Debt Management Logo"
+    class="company-logo"
+  />
+</header>  
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mb-4">Register</h2>
+    <form method="POST" action="{{ url_for('main.register') }}">
+      {{ form.hidden_tag() }}
+
+      <!-- Username Field -->
+      <div class="mb-3">
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control" + (' is-invalid' if form.username.errors else '')) }}
+        {% for error in form.username.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Email Field -->
+      <div class="mb-3">
+        {{ form.email.label(class="form-label") }}
+        {{ form.email(class="form-control" + (' is-invalid' if form.email.errors else '')) }}
+        {% for error in form.email.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Cellphone Field -->
+      <div class="mb-3">
+        {{ form.cellphone.label(class="form-label") }}
+        {{ form.cellphone(class="form-control" + (' is-invalid' if form.cellphone.errors else '')) }}
+        {% for error in form.cellphone.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Password Field with Show/Hide Toggle -->
+      <div class="mb-3">
+        {{ form.password.label(class="form-label") }}
+        <div class="input-group">
+          {{ form.password(class="form-control" + (' is-invalid' if form.password.errors else ''), id="password") }}
+          <button type="button" class="btn btn-outline-secondary" id="toggle-password">
+            <i class="fa fa-eye"></i>
+          </button>
+        </div>
+        {% for error in form.password.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Confirm Password Field with Show/Hide Toggle -->
+      <div class="mb-3">
+        {{ form.confirm_password.label(class="form-label") }}
+        <div class="input-group">
+          {{ form.confirm_password(class="form-control" + (' is-invalid' if form.confirm_password.errors else ''), id="confirm_password") }}
+          <button type="button" class="btn btn-outline-secondary" id="toggle-confirm-password">
+            <i class="fa fa-eye"></i>
+          </button>
+        </div>
+        {% for error in form.confirm_password.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+      </div>
+
+      <!-- Submit Button -->
+      <div class="mb-3">
+        {{ form.submit(class="btn btn-success w-100") }}
+      </div>
+    </form>
+
+    <p class="text-center">Already have an account? <a href="{{ url_for('main.login') }}">Login here</a>.</p>
+  </div>
+</div>
+
+<!-- JavaScript for Show/Hide Password Toggles -->
+<script>
+  // Toggle password visibility for password field
+  document.getElementById('toggle-password').addEventListener('click', function () {
+    const passwordField = document.getElementById('password');
+    if (passwordField.type === 'password') {
+      passwordField.type = 'text';
+      this.innerHTML = '<i class="fa fa-eye-slash"></i>';
+    } else {
+      passwordField.type = 'password';
+      this.innerHTML = '<i class="fa fa-eye"></i>';
+    }
+  });
+
+  // Toggle password visibility for confirm password field
+  document.getElementById('toggle-confirm-password').addEventListener('click', function () {
+    const confirmPasswordField = document.getElementById('confirm_password');
+    if (confirmPasswordField.type === 'password') {
+      confirmPasswordField.type = 'text';
+      this.innerHTML = '<i class="fa fa-eye-slash"></i>';
+    } else {
+      confirmPasswordField.type = 'password';
+      this.innerHTML = '<i class="fa fa-eye"></i>';
+    }
+  });
+</script>
+{% endblock %}
