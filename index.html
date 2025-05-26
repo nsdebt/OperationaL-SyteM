@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}Home - NS Debt Management{% endblock %}
+
+{% block content %}
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#">NS Debt Management</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('debt_review') }}">Debt Review</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('credit_repair') }}">Credit Repair</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('automate_debt_restructuring') }}">Debt Restructuring</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="jumbotron p-5 mb-4 bg-light rounded-3">
+  <div class="container">
+    <h1 class="display-4">Welcome to NS Debt Management</h1>
+    <p class="lead">Streamline your financial freedom with our cutting-edge, automated debt management services. From debt review and credit repair to fully automated debt restructuring, we offer tailor-made solutions that work for you.</p>
+    <hr class="my-4">
+    <p>Our services help you achieve financial stability with ease. Get started today!</p>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('login') }}" role="button">Login</a>
+    <a class="btn btn-success btn-lg" href="{{ url_for('register') }}" role="button">Register</a>
+  </div>
+</div>
+
+<!-- Service Section -->
+<div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Debt Review</h5>
+          <p class="card-text">Let us manage your debt review process, ensuring that all your debts are handled in a timely and professional manner. With our expert services, we provide debt solutions tailored to your needs.</p>
+          <a href="{{ url_for('debt_review') }}" class="btn btn-outline-primary">Learn More</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Credit Repair</h5>
+          <p class="card-text">Improve your credit score by disputing inaccuracies with our automated and effective credit repair system. Take control of your financial future today.</p>
+          <a href="{{ url_for('credit_repair') }}" class="btn btn-outline-primary">Learn More</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Debt Restructuring</h5>
+          <p class="card-text">Fully automate your debt restructuring process and get timely payment arrangements for debt settlement. Our solutions are designed for simplicity and peace of mind.</p>
+          <a href="{{ url_for('automate_debt_restructuring') }}" class="btn btn-outline-primary">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Testimonials Section -->
+<section class="bg-light py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">What Our Clients Say</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <blockquote class="blockquote">
+              <p class="mb-0">"NS Debt Management helped me repair my credit and get back on track financially. I highly recommend their services!"</p>
+              <footer class="blockquote-footer">Sarah L. <cite title="Source">Business Owner</cite></footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <blockquote class="blockquote">
+              <p class="mb-0">"Their debt review process was fast and efficient. I was able to consolidate all my debts into a manageable monthly payment."</p>
+              <footer class="blockquote-footer">John M. <cite title="Source">Entrepreneur</cite></footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <blockquote class="blockquote">
+              <p class="mb-0">"Thanks to NS Debt Management, I am now debt-free and financially secure. Their customer service is top-notch!"</p>
+              <footer class="blockquote-footer">Emily R. <cite title="Source">Teacher</cite></footer>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Frequently Asked Questions</h2>
+    <div class="accordion" id="faqAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            What is Debt Review?
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Debt review is a formal process where a registered debt counselor helps you to restructure your debt and create a repayment plan that you can afford. This ensures that your payments are manageable and protects you from legal action.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingTwo">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            How long does credit repair take?
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            The duration of credit repair varies depending on the complexity of the issues. On average, the process takes between 3 to 6 months. However, significant improvements can be seen earlier.
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingThree">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+            How do I get started with debt restructuring?
+          </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            To get started with debt restructuring, simply contact us for a consultation. Our team will assess your financial situation and provide you with a tailored solution for managing and settling your debts.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer Section -->
+<footer class="bg-dark text-white py-4">
+  <div class="container text-center">
+    <p>NS Debt Management &copy; 2025 | All Rights Reserved</p>
+    <p>Follow Us: <a href="#" class="text-white">Facebook</a> | <a href="#" class="text-white">Twitter</a> | <a href="#" class="text-white">LinkedIn</a></p>
+    <p><a href="#" class="text-white">Privacy Policy</a> | <a href="#" class="text-white">Terms of Service</a></p>
+  </div>
+</footer>
+
+{% endblock %}
