@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debt Resolution Proposal Tool ADR</title>
+  
+      <!-- Branding -->
+      <div class="text-center mb-4" aria-label="Animated NS Debt Management logo">
+        <video
+          class="media-fixed"
+          autoplay
+          loop
+          muted
+          playsinline
+          width="1920"
+          height="920"
+        >
+          <source src="static/videos/animated logowwr.mp4" type="video/mp4">
+          <img
+            src="static/images/logo_transparent.png"
+            alt="NS Debt Management (static logo)"
+            class="media-fixed"
+          >
+        </video>
+      </div>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">  <!-- Animate.css -->
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Branding wrapper */
+.branding {
+  padding: 1rem 0;
+  background: #e9ecef;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Logo sizing */
+.company-logo {
+  max-height: 60px;
+  width: 600px;
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.company-logo:hover {
+  transform: scale(1.05); /* Slight zoom on hover */
+}
+
+    /* Theme Variables */
+    :root {
+      --color-bg: #ffffff;
+      --color-surface: #ffffff;
+      --color-primary: #0052cc;
+      --color-primary-hover: #003d99;
+      --color-secondary: #0066ff;
+      --color-text: #1a1a1a;
+      --color-muted: #ffffff;
+      --color-border: #ffffff;
+      --border-radius: 0.5rem;
+      --transition-speed: 0.3s;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Base */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      margin: 0;
+      padding-bottom: 80px;
+    }
+
+    /* Loading Overlay */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      background: var(--color-surface);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .spinner {
+      animation: spin 1.2s linear infinite;
+      width: 60px;
+      height: 60px;
+    }
+    .path {
+      stroke: var(--color-primary);
+      stroke-linecap: round;
+      animation: dash 1.5s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes dash {
+      0%   { stroke-dasharray: 1,150; stroke-dashoffset: 0; }
+      50%  { stroke-dasharray: 90,150; stroke-dashoffset: -35; }
+      100% { stroke-dasharray: 90,150; stroke-dashoffset: -124; }
+    }
+    #loadingOverlay h2 {
+      margin-top: 1rem;
+      color: var(--color-primary);
+      font-weight: 500;
+    }
+
+    /* Container */
+    .container {
+      padding-top: 40px;
+    }
+
+    /* Nav Tabs as Pills */
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      border-bottom: none;
+      margin-bottom: 1rem;
+    }
+    .nav-tabs li {
+      list-style: none;
+    }
+    .nav-tabs li a {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      color: var(--color-primary);
+      font-weight: 500;
+      transition: background var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+    }
+    .nav-tabs li a.active,
+    .nav-tabs li a:hover {
+      background: var(--color-primary);
+      color: #fff;
+      border-color: var(--color-primary-hover);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Tab Contents */
+    .tab-content {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      animation-duration: var(--transition-speed);
+    }
+
+    /* Headings */
+    h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    /* Input Groups */
+    .input-group {
+      margin-bottom: 1.25rem;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--color-text);
+    }
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--border-radius);
+      transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+    }
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: var(--color-secondary);
+      box-shadow: 0 0 0 0.2rem rgba(0,102,255,0.25);
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+    th, td {
+      padding: 0.75rem;
+      text-align: center;
+      border: 1px solid var(--color-border);
+    }
+    th {
+      background: var(--color-primary);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Buttons */
+    .btn {
+      border-radius: var(--border-radius);
+      font-weight: 500;
+      transition: background var(--transition-speed), transform var(--transition-speed);
+    }
+    .btn-primary {
+      background: var(--color-primary);
+      border: none;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: var(--color-secondary);
+      border: none;
+      color: #fff;
+    }
+    .btn-secondary:hover {
+      background: #0052cc;
+      transform: translateY(-1px);
+    }
+    .btn-info {
+      background: var(--color-secondary);
+      border: none;
+      color: #fff;
+    }
+    .btn-info:hover {
+      background: #004bb5;
+      transform: translateY(-1px);
+    }
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.875rem;
+    }
+    .mt-2 { margin-top: 0.5rem !important; }
+    .mt-3 { margin-top: 1rem !important; }
+    .mt-4 { margin-top: 1.5rem !important; }
+    .text-center { text-align: center !important; }
+
+    /* Alerts */
+    .alert {
+      border-radius: var(--border-radius);
+      padding: 1rem;
+    }
+
+    /* Footer */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: var(--color-surface);
+      padding: 1rem 0;
+      box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+      text-align: center;
+      color: var(--color-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-tabs {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay">
+    <svg class="spinner" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <h2 class="animate__animated animate__fadeInUp" style="color:#3498db;">NS Debt Management – Loading Tool...</h2>
+  </div>
+  
+  <!-- Main Content -->
+  <div id="mainContent" style="display: none;" class="container">
+    <!-- Navigation Tabs -->
+    <ul class="nav-tabs">
+      <li><a href="#consumer-info" class="active" onclick="showTab('consumer-info')">Consumer Info</a></li>
+      <li><a href="#financial-info" onclick="showTab('financial-info')">Financial Info</a></li>
+      <li><a href="#debt-info" onclick="showTab('debt-info')">Debt Details</a></li>
+      <li><a href="#expenses-info" onclick="showTab('expenses-info')">Expenses</a></li>
+      <li><a href="#advanced-analytics" onclick="showTab('advanced-analytics')"> Analytics</a></li>
+      <li><a href="#scenario-analysis" onclick="showTab('scenario-analysis')">Scenario Analysis</a></li>
+      <li><a href="#adr-simulation" onclick="simulateADRTab()">ADR Simulation</a></li>
+      <li><a href="#proposal" onclick="showTab('proposal')">PLANS</a></li>
+    </ul>
+    
+    <!-- Consumer Information Section -->
+    <div id="consumer-info" class="tab-content animate__animated animate__fadeIn" style="display:block;">
+      <h2>Consumer Information</h2>
+      <div class="input-group">
+        <label for="consumer-name">Full Name</label>
+        <input type="text" id="consumer-name" placeholder="Enter consumer name" required />
+      </div>
+      <div class="input-group">
+        <label for="consumer-id">ID Number</label>
+        <input type="text" id="consumer-id" placeholder="Enter consumer ID number" required />
+      </div>
+      <div class="input-group">
+        <label for="contact">Contact Number</label>
+        <input type="text" id="contact" placeholder="Enter contact number" required />
+      </div>
+      <div class="input-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="Enter email address" required />
+      </div>
+      <div class="input-group">
+        <label for="application-date">Offer Creation Date</label>
+        <input type="date" id="application-date" required />
+      </div>
+      <!-- Payment Details -->
+      <div class="input-group">
+        <label for="payment-method">Payment Method</label>
+        <select id="payment-method" required>
+          <option value="EFT">EFT</option>
+          <option value="CASH">CASH</option>
+          <option value="DEBIT-ORDER">DEBIT-ORDER</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="first-payment-date">First Payment Date</label>
+        <input type="date" id="first-payment-date" required />
+      </div>
+    </div>
+    
+    <!-- Financial Information Section -->
+    <div id="financial-info" class="tab-content animate__animated animate__fadeIn">
+      <h2>Financial Information</h2>
+      <div class="input-group">
+        <label for="monthly-income">Monthly Income (R)</label>
+        <input type="number" id="monthly-income" placeholder="Enter monthly income" required />
+      </div>
+      <div class="input-group">
+        <label for="credit-score">Credit Score</label>
+        <input type="number" id="credit-score" placeholder="e.g., 650" required />
+      </div>
+      <div class="input-group">
+        <label for="employment-status">Employment Status</label>
+        <select id="employment-status" required>
+          <option value="Employed">Employed</option>
+          <option value="Self-Employed">Self-Employed</option>
+          <option value="Unemployed">Unemployed</option>
+          <option value="Retired">Retired</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="employment-type">Type of Employment</label>
+        <select id="employment-type" required>
+          <option value="Contractual">Contractual</option>
+          <option value="Permanent">Permanent</option>
+          <option value="Temporary">Temporary</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Debt Details Section with Dynamic Rows -->
+    <div id="debt-info" class="tab-content animate__animated animate__fadeIn">
+      <h2>Debt Details</h2>
+      <p>Enter details for each separate debt (each will generate its own offer):</p>
+      <table id="debt-table">
+        <thead>
+          <tr>
+            <th>Credit Provider</th>
+            <th>Type of Debt</th>
+            <th>Outstanding Balance (R)</th>
+            <th>Interest Rate (%)</th>
+            <th>Remaining Term (Months)</th>
+            <th>Current Monthly Installment (R)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="lender-1" placeholder="Lender name" required /></td>
+            <td>
+              <select name="debt-type-1" required>
+                <option value="Credit Card">Credit Card</option>
+                <option value="Personal Loan">Personal Loan</option>
+                <option value="Student Loan">Student Loan</option>
+                <option value="Mortgage">Mortgage</option>
+                <option value="Other">Other</option>
+              </select>
+            </td>
+            <td><input type="number" name="balance-1" placeholder="R" required class="debt-amount" /></td>
+            <td><input type="number" name="rate-1" placeholder="%" required class="interest-rate" /></td>
+            <td><input type="number" name="term-1" placeholder="Months" required class="repayment-term" /></td>
+            <td><input type="number" name="current-payment-1" placeholder="R" required class="current-payment" /></td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="removeDebtRow(this)">Remove</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" class="btn btn-primary btn-sm mt-2" onclick="addDebtRow()">Add Debt</button>
+    </div>
+    
+    <!-- Expenses Section -->
+    <div id="expenses-info" class="tab-content animate__animated animate__fadeIn">
+      <h2>Monthly Expenses</h2>
+      <div class="input-group">
+        <label for="housing-expenses">Housing/Rental Expenses (R)</label>
+        <input type="number" id="housing-expenses" required />
+      </div>
+      <div class="input-group">
+        <label for="transport-expenses">Transport Expenses (R)</label>
+        <input type="number" id="transport-expenses" required />
+      </div>
+      <div class="input-group">
+        <label for="food-expenses">Food Expenses (R)</label>
+        <input type="number" id="food-expenses" required />
+      </div>
+      <div class="input-group">
+        <label for="other-expenses">Other Expenses (R)</label>
+        <input type="number" id="other-expenses" required />
+      </div>
+    </div>
+    
+    <!-- Advanced Analytics Section -->
+    <div id="advanced-analytics" class="tab-content animate__animated animate__fadeIn">
+      <h2>Advanced Analytics</h2>
+      <p>Simulate variable interest rates and additional payment adjustments:</p>
+      <div class="input-group">
+        <label for="variable-interest">Variable Interest Rate (%) <small>(Optional future adjustment)</small></label>
+        <input type="number" id="variable-interest" placeholder="Enter variable interest rate" value="0" />
+      </div>
+      <div class="input-group">
+        <label for="future-payment">Future Payment Adjustment (R) <small>(Optional additional monthly payment)</small></label>
+        <input type="number" id="future-payment" placeholder="Enter additional payment" value="0" />
+      </div>
+      <div class="alert alert-info">
+        <small>This simulation adjusts the baseline calculation using the provided variable interest rate and payment adjustment.</small>
+      </div>
+    </div>
+    
+    <!-- Scenario Analysis Section -->
+    <div id="scenario-analysis" class="tab-content animate__animated animate__fadeIn">
+      <h2>Scenario Analysis &amp; Negotiation Simulation</h2>
+      <div class="input-group">
+        <label for="extra-payment">Extra Monthly Payment (R)</label>
+        <input type="number" id="extra-payment" placeholder="Extra payment" value="0" />
+      </div>
+      <div class="input-group">
+        <label for="interest-adjustment">Interest Rate Adjustment (%)</label>
+        <input type="number" id="interest-adjustment" placeholder="Interest adjustment" value="0" />
+      </div>
+      <div class="input-group">
+        <label for="lump-sum">Lump Sum Payment (R)</label>
+        <input type="number" id="lump-sum" placeholder="Lump sum payment" value="0" />
+      </div>
+      <!-- ADR-specific simulation fields -->
+      <div class="input-group">
+        <label for="simulated-interest-reduction">Simulated Interest Reduction (%)</label>
+        <input type="number" id="simulated-interest-reduction" placeholder="Interest reduction simulation" value="0" />
+      </div>
+      <div class="input-group">
+        <label for="simulated-principal-reduction">Simulated Principal Reduction (R)</label>
+        <input type="number" id="simulated-principal-reduction" placeholder="Principal reduction simulation" value="0" />
+      </div>
+      <div class="input-group">
+        <label for="simulated-term-extension">Simulated Term Extension (Months)</label>
+        <input type="number" id="simulated-term-extension" placeholder="Term extension simulation" value="0" />
+      </div>
+    </div>
+    
+    <!-- ADR Simulation Section -->
+    <div id="adr-simulation" class="tab-content animate__animated animate__fadeIn">
+      <!-- Dynamically populated ADR simulation results -->
+    </div>
+    
+    <!-- Proposals Section -->
+    <div id="proposal" class="tab-content animate__animated animate__fadeIn">
+      <h2>Generated Proposals</h2>
+      <div id="proposal-details"></div>
+      <div class="mt-3 text-center">
+        <!-- Print Button -->
+        <button type="button" class="btn btn-secondary" onclick="printProposal()">Print Payment Plans</button>
+        <button type="button" class="btn btn-secondary" onclick="exportScheduleCSV()">Export Schedule CSV</button>
+      </div>
+    </div>
+    
+    <!-- Global Alert Section -->
+    <div id="alert-message" class="alert alert-danger mt-3" style="display:none;"></div>
+    
+    <!-- Generate & Load Proposal Buttons -->
+    <div class="text-center mt-4">
+      <button type="button" class="btn btn-primary" onclick="generateProposal()">Generate Payment Plans</button>
+      <button type="button" class="btn btn-info" onclick="loadProposalFromLocalStorage()">Load Saved Proposal</button>
+    </div>
+  </div>
+  
+  <!-- Footer with Company Info -->
+  <div class="footer">
+    <p>NS Debt Management &bull; 296 Pretorius Street, Pretoria Central, Pretoria, 0002, South Africa</p>
+    <p>Email: legaladmin@nsdebt.co.za | Phone: +27 87 265 5139/8181</p>
+  </div>
+  
+  <!-- JavaScript Functionality -->
+  <script>
+    // Global Variables
+    let proposalsData = [];  // Array to store individual proposal data
+    let adrSimulationData = {};
+
+    // Set default application date and show main content
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('application-date').value = today;
+      document.getElementById("mainContent").style.display = "block";
+    });
+    window.addEventListener('load', () => {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.remove();
+    });
+    setTimeout(() => {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.remove();
+    }, 3000);
+
+    // Tab Navigation
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        if (tab.id !== tabId) {
+          tab.classList.remove('animate__fadeIn');
+          tab.classList.add('animate__fadeOut');
+          setTimeout(() => { tab.style.display = 'none'; }, 300);
+        }
+      });
+      const targetTab = document.getElementById(tabId);
+      targetTab.style.display = 'block';
+      targetTab.classList.remove('animate__fadeOut');
+      targetTab.classList.add('animate__fadeIn');
+      
+      document.querySelectorAll('.nav-tabs li a').forEach(link => {
+        link.classList.remove('active');
+      });
+      document.querySelector('.nav-tabs li a[href="#' + tabId + '"]').classList.add('active');
+    }
+
+    // Dynamic Debt Rows
+    function addDebtRow() {
+      const tbody = document.querySelector('#debt-table tbody');
+      const rowCount = tbody.children.length + 1;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" name="lender-${rowCount}" placeholder="Lender name" required /></td>
+        <td>
+          <select name="debt-type-${rowCount}" required>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Personal Loan">Personal Loan</option>
+            <option value="Student Loan">Student Loan</option>
+            <option value="Mortgage">Mortgage</option>
+            <option value="Other">Other</option>
+          </select>
+        </td>
+        <td><input type="number" name="balance-${rowCount}" placeholder="R" required class="debt-amount" /></td>
+        <td><input type="number" name="rate-${rowCount}" placeholder="%" required class="interest-rate" /></td>
+        <td><input type="number" name="term-${rowCount}" placeholder="Months" required class="repayment-term" /></td>
+        <td><input type="number" name="current-payment-${rowCount}" placeholder="R" required class="current-payment" /></td>
+        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeDebtRow(this)">Remove</button></td>
+      `;
+      tbody.appendChild(row);
+    }
+    function removeDebtRow(btn) {
+      const row = btn.parentElement.parentElement;
+      row.remove();
+    }
+
+    // Generate Proposals for Each Debt Row
+    function generateProposal() {
+      // Basic Inputs
+      const monthlyIncome = parseFloat(document.getElementById('monthly-income').value) || 0;
+      const housingExpenses = parseFloat(document.getElementById('housing-expenses').value) || 0;
+      const transportExpenses = parseFloat(document.getElementById('transport-expenses').value) || 0;
+      const foodExpenses = parseFloat(document.getElementById('food-expenses').value) || 0;
+      const otherExpenses = parseFloat(document.getElementById('other-expenses').value) || 0;
+      const totalExpenses = housingExpenses + transportExpenses + foodExpenses + otherExpenses;
+      const disposableIncome = monthlyIncome - totalExpenses;
+      if (disposableIncome <= 0) {
+        showAlert("Error: Expenses exceed or equal income.");
+        return;
+      }
